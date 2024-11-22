@@ -8,15 +8,31 @@ from terminaltables import AsciiTable
 import requests
 
 
-def display_salary_statistics(languages_info):
+def calculate_salary(vacancy, from_key, to_key, currency_key=None, target_currency=None):
+
+    payment_from = vacancy.get(from_key)
+    payment_to = vacancy.get(to_key)
+
+    if currency_key and vacancy.get(currency_key) != target_currency:
+        return None
+
+    if payment_from is None and payment_to:
+        return payment_to * 0.8
+    elif payment_to is None and payment_from:
+        return payment_from * 1.2
+    elif payment_from and payment_to:
+        return (payment_from + payment_to) / 2
+
+
+def display_salary_statistics(languages_statistic):
     table = [
         ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']
     ]
-    for language, info in languages_info.items():
+    for language, info in languages_statistic.items():
         table.append([
             language,
             info["vacancies_found"],
-            info["vacancies_processed"],
+            info["found_vacancies"],
             info["average_salary"]
         ])
 
@@ -26,7 +42,7 @@ def display_salary_statistics(languages_info):
 def calc_avg_salary_sj(api_key):
     url = 'https://api.superjob.ru/2.0/vacancies/'
     language_list = ['Python', 'Java', 'Javascript']
-    languages_info = {}
+    languages_statistic = {}
     moscow_city = 4
     programmers_id = 48
 
@@ -45,7 +61,6 @@ def calc_avg_salary_sj(api_key):
         }
 
         salaries = []
-        total_vacancies = 0
 
         for page in count():
             params['page'] = page
@@ -59,13 +74,9 @@ def calc_avg_salary_sj(api_key):
                 break
 
             for vacancy in vacancies:
-                if vacancy.get('payment_from') is None and vacancy.get('payment_to'):
-                    salaries.append(vacancy.get('payment_to') * 0.8)
-                elif vacancy.get('payment_to') is None and vacancy.get('payment_from'):
-                    salaries.append(vacancy.get('payment_from') * 1.2)
-                elif vacancy.get('payment_to') and vacancy.get('payment_from'):
-                    salaries.append((vacancy.get('payment_to') + vacancy.get('payment_from')) / 2)
-
+                salary = calculate_salary(vacancy, "payment_from", "payment_to")
+                if salary:
+                    salaries.append(salary)
 
 
         if salaries:
@@ -73,18 +84,18 @@ def calc_avg_salary_sj(api_key):
         else:
             salary_avr = 0
 
-        languages_info[language] = {
+        languages_statistic[language] = {
             "vacancies_found": total_vacancies,
-            "vacancies_processed": len(salaries),
+            "found_vacancies": len(salaries),
             "average_salary": int(salary_avr)
         }
-    display_salary_statistics(languages_info)
+    display_salary_statistics(languages_statistic)
 
 
 def calc_avg_salary_hh():
     url = 'https://api.hh.ru/vacancies'
     language_list = ['Python', 'Java', 'Javascript']
-    languages_info = {}
+    languages_statistic = {}
     moscow_city = 1
     for language in language_list:
         payload = {
@@ -96,7 +107,6 @@ def calc_avg_salary_hh():
 
         }
         salaries = []
-        total_vacancies = 0
 
         for page in count():
             payload['page'] = page
@@ -115,32 +125,25 @@ def calc_avg_salary_hh():
             if not vacancies:
                 break
 
-            total_vacancies += len(vacancies)
 
             for vacancy in vacancies:
-                salary = vacancy.get("salary")
-                if salary and salary.get("currency") == "RUR":
-                    if salary.get('from') is None and salary.get('to'):
-                        salaries.append(salary.get('to') * 0.8)
-                    elif salary.get('to') is None and salary.get('from'):
-                        salaries.append(salary.get('from') * 1.2)
-                    elif salary.get('to') and salary.get('from'):
-                        salaries.append((salary.get('to') + salary.get('from')) / 2)
-                    else:
-                        salaries.append(0)
-
+                pay_range = vacancy.get("salary")
+                if pay_range:
+                    salary = calculate_salary(pay_range, "from", "to", "currency", "RUR")
+                    if salary:
+                        salaries.append(salary)
 
         if salaries:
             salary_avr = sum(salaries) / len(salaries)
         else:
             salary_avr = 0
 
-        languages_info[language] = {
+        languages_statistic[language] = {
             "vacancies_found": total_vacancies,
-            "vacancies_processed": len(salaries),
+            "found_vacancies": len(salaries),
             "average_salary": int(salary_avr)
         }
-    display_salary_statistics(languages_info)
+    display_salary_statistics(languages_statistic)
 
 
 def main():
