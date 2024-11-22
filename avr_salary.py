@@ -23,10 +23,8 @@ def display_salary_statistics(languages_info):
     table_created = AsciiTable(table, 'HeadHunter Moscow')
     print(table_created.table)
 
-def calc_avg_salary_sj():
+def calc_avg_salary_sj(api_key):
     url = 'https://api.superjob.ru/2.0/vacancies/'
-    load_dotenv()
-    api_key = os.getenv('SJ_API_KEY')
     language_list = ['Python', 'Java', 'Javascript']
     languages_info = {}
     moscow_city = 4
@@ -146,7 +144,9 @@ def calc_avg_salary_hh():
 
 
 def main():
-    calc_avg_salary_sj()
+    load_dotenv()
+    api_key = os.getenv('SJ_API_KEY')
+    calc_avg_salary_sj(api_key)
     calc_avg_salary_hh()
 
 if __name__ == '__main__':
