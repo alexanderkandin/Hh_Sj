@@ -41,13 +41,13 @@ def display_salary_statistics(languages_statistic):
 
 def calc_avg_salary_sj(api_key):
     url = 'https://api.superjob.ru/2.0/vacancies/'
-    language_list = ['Python', 'Java', 'Javascript']
+    languages = ['Python', 'Java', 'Javascript']
     languages_statistic = {}
     moscow_city = 4
     programmers_id = 48
 
 
-    for language in language_list:
+    for language in languages:
         params = {
             'keyword' : language,
             'town' : moscow_city,
