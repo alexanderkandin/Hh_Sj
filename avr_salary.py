@@ -9,19 +9,15 @@ import requests
 
 
 def calculate_salary(min_salary, max_salary, currency=None, target_currency=None):
-
-    payment_from = min_salary
-    payment_to = max_salary
-
     if currency != target_currency:
         return None
 
-    if payment_from is None and payment_to:
-        return payment_to * 0.8
-    elif payment_to is None and payment_from:
-        return payment_from * 1.2
-    elif payment_from and payment_to:
-        return (payment_from + payment_to) / 2
+    if min_salary and max_salary:
+        return (min_salary + max_salary) / 2
+    elif min_salary:
+        return min_salary * 1.2
+    elif max_salary:
+        return max_salary * 0.8
 
 
 def display_salary_statistics(languages_statistic):
