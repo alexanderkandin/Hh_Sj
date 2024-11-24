@@ -20,7 +20,7 @@ def calculate_salary(min_salary, max_salary, currency=None, target_currency=None
         return max_salary * 0.8
 
 
-def display_salary_statistics(languages_statistic):
+def prepare_table(languages_statistic):
     table = [
         ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']
     ]
@@ -31,9 +31,18 @@ def display_salary_statistics(languages_statistic):
             info["found_vacancies"],
             info["average_salary"]
         ])
+    return table
 
+
+def display_table(table):
     table_created = AsciiTable(table, 'HeadHunter Moscow')
     print(table_created.table)
+
+
+def display_salary_statistics(languages_statistic):
+    table = prepare_table(languages_statistic)
+    display_table(table)
+
 
 def calc_avg_salary_sj(api_key):
     url = 'https://api.superjob.ru/2.0/vacancies/'
