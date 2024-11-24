@@ -66,9 +66,10 @@ def calc_avg_salary_sj(api_key):
             params['page'] = page
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
-            vacancies = response.json().get('objects')
+            vacancy_details = response.json()
+            vacancies = vacancy_details.get('objects')
             if page == 0:
-                total_vacancies = response.json().get('total', 0)
+                total_vacancies = vacancy_details.get('total', 0)
 
             if not vacancies:
                 break
@@ -119,8 +120,9 @@ def calc_avg_salary_hh():
                 continue
 
             response.raise_for_status()
-            vacancies = response.json().get("items", [])
-            total_vacancies = response.json().get("found", 0)
+            vacancy_details = response.json()
+            vacancies = vacancy_details.get("items", [])
+            total_vacancies = vacancy_details.get("found", 0)
 
             if not vacancies:
                 break
