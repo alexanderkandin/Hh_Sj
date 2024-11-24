@@ -8,12 +8,12 @@ from terminaltables import AsciiTable
 import requests
 
 
-def calculate_salary(vacancy, from_key, to_key, currency_key=None, target_currency=None):
+def calculate_salary(min_salary, max_salary, currency=None, target_currency=None):
 
-    payment_from = vacancy.get(from_key)
-    payment_to = vacancy.get(to_key)
+    payment_from = min_salary
+    payment_to = max_salary
 
-    if currency_key and vacancy.get(currency_key) != target_currency:
+    if currency != target_currency:
         return None
 
     if payment_from is None and payment_to:
@@ -75,7 +75,9 @@ def calc_avg_salary_sj(api_key):
                 break
 
             for vacancy in vacancies:
-                salary = calculate_salary(vacancy, "payment_from", "payment_to")
+                min_salary = vacancy.get('payment_from')
+                max_salary = vacancy.get("payment_to")
+                salary = calculate_salary(min_salary, max_salary)
                 if salary:
                     salaries.append(salary)
 
@@ -95,10 +97,10 @@ def calc_avg_salary_sj(api_key):
 
 def calc_avg_salary_hh():
     url = 'https://api.hh.ru/vacancies'
-    language_list = ['Python', 'Java', 'Javascript']
+    languages = ['Python', 'Java', 'Javascript']
     languages_statistic = {}
     moscow_city = 1
-    for language in language_list:
+    for language in languages:
         payload = {
             "currency": "RUR",
             'text': language,
@@ -129,11 +131,14 @@ def calc_avg_salary_hh():
 
 
             for vacancy in vacancies:
-                pay_range = vacancy.get("salary")
-                if pay_range:
-                    salary = calculate_salary(pay_range, "from", "to", "currency", "RUR")
-                    if salary:
-                        salaries.append(salary)
+
+                currency = vacancy.get('currency')
+                min_salary = vacancy.get('from')
+                max_salary = vacancy.get("to")
+
+                salary = calculate_salary(min_salary, max_salary, currency, "RUR")
+                if salary:
+                    salaries.append(salary)
 
         if salaries:
             salary_avr = sum(salaries) / len(salaries)
