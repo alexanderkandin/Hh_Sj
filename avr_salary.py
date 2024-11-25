@@ -34,14 +34,10 @@ def prepare_table(languages_statistic):
     return table
 
 
-def display_table(table):
-    table_created = AsciiTable(table, 'HeadHunter Moscow')
-    print(table_created.table)
-
-
 def display_salary_statistics(languages_statistic):
     table = prepare_table(languages_statistic)
-    display_table(table)
+    table_created = AsciiTable(table, 'HeadHunter Moscow')
+    print(table_created.table)
 
 
 def calc_avg_salary_sj(api_key):
@@ -97,7 +93,7 @@ def calc_avg_salary_sj(api_key):
             "found_vacancies": len(salaries),
             "average_salary": int(salary_avr)
         }
-    display_salary_statistics(languages_statistic)
+    return languages_statistic
 
 
 def calc_avg_salary_hh():
@@ -155,14 +151,16 @@ def calc_avg_salary_hh():
             "found_vacancies": len(salaries),
             "average_salary": int(salary_avr)
         }
-    display_salary_statistics(languages_statistic)
+    return languages_statistic
 
 
 def main():
     load_dotenv()
     api_key = os.getenv('SJ_API_KEY')
-    calc_avg_salary_sj(api_key)
-    calc_avg_salary_hh()
+    sj_salary = calc_avg_salary_sj(api_key)
+    hh_salary = calc_avg_salary_hh()
+    display_salary_statistics(sj_salary)
+    display_salary_statistics(hh_salary)
 
 if __name__ == '__main__':
     main()
